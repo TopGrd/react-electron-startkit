@@ -1,0 +1,74 @@
+process.env.BABEL_ENV = 'main'
+
+const path = require('path')
+const { dependencies } = require('../package.json')
+const webpack = require('webpack')
+
+let mainConfig = {
+  entry: {
+    main: path.join(__dirname, '../src/main/index.js'),
+  },
+  output: {
+    filename: '[name].js',
+    libraryTarget: 'commonjs2',
+    path: path.join(__dirname, '../dist/electron'),
+  },
+  resolve: {
+    extensions: ['.js', '.json', '.node'],
+  },
+  externals: [...Object.keys(dependencies || {})],
+  module: {
+    rules: [
+      {
+        test: /\.(js)$/,
+        enforce: 'pre',
+        exclude: /node_modules/,
+        use: {
+          loader: 'eslint-loader',
+          options: {
+            formatter: require('eslint-friendly-formatter'),
+          },
+        },
+      },
+      {
+        test: /\.js$/,
+        use: 'babel-loader',
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.node$/,
+        use: 'node-loader',
+      },
+    ],
+  },
+  node: {
+    __dirname: process.env.NODE_ENV !== 'production',
+    __filename: process.env.NODE_ENV !== 'production',
+  },
+  plugins: [new webpack.NoEmitOnErrorsPlugin()],
+  target: 'electron-main',
+}
+
+/**
+ * Adjust mainConfig for development settings
+ */
+if (process.env.NODE_ENV !== 'production') {
+  mainConfig.plugins.push(
+    new webpack.DefinePlugin({
+      __static: `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`,
+    }),
+  )
+}
+
+/**
+ * Adjust mainConfig for production settings
+ */
+if (process.env.NODE_ENV === 'production') {
+  mainConfig.plugins.push(
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': '"production"',
+    }),
+  )
+}
+
+module.exports = mainConfig

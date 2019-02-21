@@ -1,0 +1,12 @@
+{
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "extends": "eslint-config-hcb",
+  "rules": {
+    "semi": ["error", "never"]
+  },
+  "globals": {}
+}
