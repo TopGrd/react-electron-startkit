@@ -8,6 +8,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const baseConfig = require('./webpack.base')
 const { dependencies } = require('../package.json')
 
+// 不需要放在 externals 的包
 let whiteListedModules = []
 
 let rendererConfig = merge(baseConfig, {
@@ -27,16 +28,13 @@ let rendererConfig = merge(baseConfig, {
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
-        removeComments: true
+        removeComments: true,
       },
-      nodeModules: process.env.NODE_ENV !== 'production'
-        ? path.resolve(__dirname, '../node_modules')
-        : false
+      nodeModules: process.env.NODE_ENV !== 'production' ? path.resolve(__dirname, '../node_modules') : false,
     }),
   ],
   target: 'electron-renderer',
 })
-
 
 /**
  * Adjust rendererConfig for production settings
@@ -62,3 +60,4 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 module.exports = rendererConfig
+
